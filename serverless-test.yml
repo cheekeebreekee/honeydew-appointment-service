@@ -1,18 +1,15 @@
 service: honeydew-appointment-service
 
-frameworkVersion: ">=2.0.0"
+frameworkVersion: ">=3.1.0"
 
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs12.x
   stage: test
   region: us-east-1
   profile: ApiGatewayLambdaServiceUser
   timeout: 30
   lambdaHashingVersion: 20201221
-  environment:
-    APPOINTMENTS_TABLE: ${self:service}-table-${self:provier.stage}
-    ENVIRONMENT: TEST
   iamRoleStatements:
     - Effect: Allow
       Action:

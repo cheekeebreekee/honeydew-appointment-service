@@ -1,0 +1,6 @@
+test:
+  APPOINTMENTS_TABLE: honeydew-appointment-service-table-test
+  ENVIRONMENT: TEST
+prod:
+  APPOINTMENTS_TABLE: honeydew-appointment-service-table-prod
+  ENVIRONMENT: PRODUCTION

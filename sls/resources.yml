@@ -10,4 +10,4 @@ Resources:
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
-      TableName: ${self:provider.environment.APPOINTMENTS_TABLE}
+      TableName: ${file(./sls/variables.yml):${self:provider.stage}.APPOINTMENTS_TABLE}

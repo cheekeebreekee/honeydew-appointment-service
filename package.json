@@ -1,28 +1,30 @@
 {
-    "name": "honeydew-patient-service",
+    "name": "honeydew-appointment-service",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "deploy-test": "npm run lint:fix && npm run prettier:fix && sls deploy --config ./serverless-test.yml",
-      "deploy-test-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --config ./serverless-test-ci.yml",
-      "deploy-prod": "npm run lint:fix && npm run prettier:fix && sls deploy --config ./serverless-prod.yml",
-      "deploy-prod-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --config ./serverless-prod-ci.yml",
-      "deploy-domain-test": "npm run lint:fix && npm run prettier:fix && sls create_domain --config ./serverless-test.yml",
-      "deploy-domain-prod": "npm run lint:fix && npm run prettier:fix && sls create_domain --config ./serverless-prod.yml",
+      "deploy-test": "npm run lint:fix && npm run prettier:fix && sls deploy --stage test --config ./serverless-test.yml",
+      "deploy-test-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --stage test --config ./serverless-test-ci.yml",
+      "deploy-prod": "npm run lint:fix && npm run prettier:fix && sls deploy --stage prod --config ./serverless-prod.yml",
+      "deploy-prod-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --stage prod --config ./serverless-prod-ci.yml",
+      "deploy-domain-test": "npm run lint:fix && npm run prettier:fix && sls create_domain --stage test --config ./serverless-test.yml",
+      "deploy-domain-prod": "npm run lint:fix && npm run prettier:fix && sls create_domain --stage prod --config ./serverless-prod.yml",
       "prettier": "prettier --check .",
       "prettier:fix": "prettier --write .",
       "lint": "eslint . --ext .ts",
       "lint:fix": "eslint --fix . --ext .ts",
-      "fix:all": "prettier --write . && tslint -p tsconfig.json --fix"
+      "fix:all": "prettier --write . && tslint -p tsconfig.json --fix",
+      "aws:login": "aws codeartifact login --tool npm --repository honeydew-shared --domain honeydew --domain-owner 882887517494 --region us-east-1"
     },
     "author": "Yahor Simak",
     "license": "ISC",
     "dependencies": {
       "aws-sdk": "^2.752.0",
       "axios": "^0.21.1",
-      "uuid": "^8.3.2"
+      "uuid": "^8.3.2",
+      "honeydew-shared": "1.0.0"
     },
     "devDependencies": {
       "@types/aws-lambda": "^8.10.92",
@@ -39,7 +41,7 @@
       "eslint-plugin-import": "^2.25.4",
       "eslint-plugin-prettier": "^4.0.0",
       "prettier": "^2.5.1",
-      "serverless": "^2.66.1",
+      "serverless": "^3.27.0",
       "serverless-domain-manager": "^6.0.3",
       "serverless-plugin-lambda-dead-letter": "^1.2.1",
       "serverless-prune-plugin": "^2.0.1",
