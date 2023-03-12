@@ -1,0 +1,82 @@
+service: honeydew-appointment-service
+
+frameworkVersion: ">=3.1.0"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'test'}
+  profile: ApiGatewayLambdaServiceUser
+  timeout: 30
+  lambdaHashingVersion: 20201221
+  environment:
+    BRAND: honeydew
+    ENVIRONMENT: ${opt:stage, 'test'}
+    SERVICE: appointment-service
+    DEBUG: true
+    ACCOUNT_ID: ${aws:accountId}
+    REGION: ${opt:region, 'us-east-1'}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
+        - dynamodb:BatchGetItem
+        - sns:Publish
+        - s3:PutObject
+        - sqs:*
+        - cognito-identity:*
+        - ses:SendEmail
+        - ssm:*
+        - events:*
+      Resource: "*"
+
+custom:
+  prune:
+    automatic: true
+    number: 5
+  webpack:
+    packager: "npm"
+    keepOutputDirectory: true
+  customDomain:
+    domainName: "testapi.honeydewcare.com"
+    basePath: "appointments"
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+
+params:
+  default:
+    appoinmentCreatedEventDetailType: appointment/created
+
+functions:
+  - ${file(./sls/api.yml)}
+
+resources:
+  - ${file(./sls/resources.yml)}
+
+plugins:
+  - serverless-prune-plugin
+  - serverless-webpack
+  - serverless-domain-manager
+  - serverless-plugin-lambda-dead-letter
+
+package:
+  excludeDevDependencies: true
+  patterns:
+    - "!.git"
+    - "!.gitignore"
+    - "!.editorconfig"
+    - "!.eslintignore"
+    - "!.eslintrc.js"
+    - "!sls/**"
+    - "!README.md"
+    - "!serverless.yml"
+    - "!jest.config.js"
+    - "!tsconfig.json"
+    - "!webpack.config.json"

@@ -1,9 +1,17 @@
-testHandler:
-  handler: src/functions/test-handler/index.handler
+forwardAppointment:
+  handler: src/functions/forward-appointment/index.handler
   memorySize: 512
-  description: Test scaffolding handler
+  description: Lambda thats listens Calendly webhook and publish event to create new appointment
   events:
     - http:
-        path: test/{patientId}
+        path: "forward"
         method: post
         cors: true
+processAppointment:
+  handler: src/functions/process-appointment/index.handler
+  memorySize: 512
+  description: Lambda thats listens to SQS and manage appointments
+  events:
+    - sqs:
+        arn: !GetAtt AppointmentsQueue.Arn
+        batchSize: 1

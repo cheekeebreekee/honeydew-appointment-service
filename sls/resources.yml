@@ -5,9 +5,67 @@ Resources:
     Properties:
       BillingMode: "PAY_PER_REQUEST"
       AttributeDefinitions:
-        - AttributeName: "id"
+        - AttributeName: "patientId"
+          AttributeType: "S"
+        - AttributeName: "appointmentId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "id"
+        - AttributeName: "patientId"
           KeyType: "HASH"
+        - AttributeName: "appointmentId"
+          KeyType: "RANGE"
       TableName: ${file(./sls/variables.yml):${self:provider.stage}.APPOINTMENTS_TABLE}
+
+  # Define the SQS queue
+  AppointmentsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: appointments-sqs-dlq
+
+  AppointmentsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        maxReceiveCount: 3
+        deadLetterTargetArn: !GetAtt AppointmentsDeadLetterQueue.Arn
+
+  AppointmentsDeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sqs.amazonaws.com
+            Action: SQS:SendMessage
+            Resource: !GetAtt AppointmentsQueue.Arn
+      Queues:
+        - Ref: AppointmentsDeadLetterQueue
+
+  # Define the event rule to filter for events
+  EventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "EventRule"
+      EventPattern:
+        account:
+          - !Sub "${AWS::AccountId}"
+        detail-type:
+          - ${param:appoinmentCreatedEventDetailType}
+      Targets:
+        - Arn: !GetAtt AppointmentsQueue.Arn
+          Id: "SQSqueue"
+
+  # Allow EventBridge to invoke SQS
+  EventBridgeToToSqsPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: SQS:SendMessage
+            Resource: !GetAtt AppointmentsQueue.Arn
+      Queues:
+        - Ref: AppointmentsQueue

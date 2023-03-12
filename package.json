@@ -5,18 +5,18 @@
     "main": "index.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "deploy-test": "npm run lint:fix && npm run prettier:fix && sls deploy --stage test --config ./serverless-test.yml",
-      "deploy-test-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --stage test --config ./serverless-test-ci.yml",
-      "deploy-prod": "npm run lint:fix && npm run prettier:fix && sls deploy --stage prod --config ./serverless-prod.yml",
-      "deploy-prod-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --stage prod --config ./serverless-prod-ci.yml",
-      "deploy-domain-test": "npm run lint:fix && npm run prettier:fix && sls create_domain --stage test --config ./serverless-test.yml",
+      "deploy-test": "npm run lint:fix && npm run prettier:fix && sls deploy --stage test --config ./serverless.yml",
+      "deploy-test-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --stage test --config ./serverless-ci.yml",
+      "deploy-prod": "npm run lint:fix && npm run prettier:fix && sls deploy --stage prod --config ./serverless.yml",
+      "deploy-prod-ci": "npm run lint:fix && npm run prettier:fix && sls deploy --stage prod --config ./serverless-ci.yml",
+      "deploy-domain-test": "npm run lint:fix && npm run prettier:fix && sls create_domain --stage test --config ./serverless.yml",
       "deploy-domain-prod": "npm run lint:fix && npm run prettier:fix && sls create_domain --stage prod --config ./serverless-prod.yml",
       "prettier": "prettier --check .",
       "prettier:fix": "prettier --write .",
       "lint": "eslint . --ext .ts",
       "lint:fix": "eslint --fix . --ext .ts",
       "fix:all": "prettier --write . && tslint -p tsconfig.json --fix",
-      "aws:login": "aws codeartifact login --tool npm --repository honeydew-shared --domain honeydew --domain-owner 882887517494 --region us-east-1"
+      "aws:login": "aws codeartifact login --profile honeydew --tool npm --repository honeydew-shared --domain honeydew --domain-owner 882887517494 --region us-east-1"
     },
     "author": "Yahor Simak",
     "license": "ISC",
@@ -24,7 +24,7 @@
       "aws-sdk": "^2.752.0",
       "axios": "^0.21.1",
       "uuid": "^8.3.2",
-      "honeydew-shared": "1.0.0"
+      "honeydew-shared": "1.0.50"
     },
     "devDependencies": {
       "@types/aws-lambda": "^8.10.92",
