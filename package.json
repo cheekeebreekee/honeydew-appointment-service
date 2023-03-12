@@ -24,7 +24,7 @@
       "aws-sdk": "^2.752.0",
       "axios": "^0.21.1",
       "uuid": "^8.3.2",
-      "honeydew-shared": "1.0.52"
+      "honeydew-shared": "1.0.53"
     },
     "devDependencies": {
       "@types/aws-lambda": "^8.10.92",
