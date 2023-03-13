@@ -7,11 +7,19 @@ forwardAppointment:
         path: "forward"
         method: post
         cors: true
-processAppointment:
-  handler: src/functions/process-appointment/index.handler
+createAppointment:
+  handler: src/functions/create-appointment/index.handler
   memorySize: 512
-  description: Lambda thats listens to SQS and manage appointments
+  description: Lambda thats listens to SQS and creates appointments
   events:
     - sqs:
-        arn: !GetAtt AppointmentsQueue.Arn
+        arn: !GetAtt AppointmentCreatedQueue.Arn
+        batchSize: 1
+cancelAppointment:
+  handler: src/functions/cancel-appointment/index.handler
+  memorySize: 512
+  description: Lambda thats listens to SQS and cancels appointments
+  events:
+    - sqs:
+        arn: !GetAtt AppointmentCanceledQueue.Arn
         batchSize: 1

@@ -1,2 +1,3 @@
 default:
   appoinmentCreatedEventDetailType: appointment/created
+  appoinmentCanceledEventDetailType: appointment/canceled

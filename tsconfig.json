@@ -25,5 +25,5 @@
   ],
   "include": [
     "src"
-, "../acneaway-backend/src/services/pdf-generator.ts"  ]
+, "../acneaway-backend/src/services/pdf-generator.ts", "src/services/appointments"  ]
 }

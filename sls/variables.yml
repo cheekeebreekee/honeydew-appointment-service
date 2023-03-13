@@ -1,3 +1,6 @@
+dev:
+  APPOINTMENTS_TABLE: honeydew-appointment-service-table-dev
+  ENVIRONMENT: DEV
 test:
   APPOINTMENTS_TABLE: honeydew-appointment-service-table-test
   ENVIRONMENT: TEST

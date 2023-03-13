@@ -5,7 +5,7 @@ frameworkVersion: ">=3.1.0"
 provider:
   name: aws
   runtime: nodejs18.x
-  region: us-east-1
+  region: ${opt:region, 'us-west-2'}
   stage: ${opt:stage, 'test'}
   profile: ApiGatewayLambdaServiceUser
   timeout: 30
@@ -16,7 +16,7 @@ provider:
     SERVICE: appointment-service
     DEBUG: true
     ACCOUNT_ID: ${aws:accountId}
-    REGION: ${opt:region, 'us-east-1'}
+    REGION: ${opt:region, 'us-west-2'}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -44,15 +44,17 @@ custom:
   webpack:
     packager: "npm"
     keepOutputDirectory: true
-  customDomain:
-    domainName: "testapi.honeydewcare.com"
-    basePath: "appointments"
-    stage: ${self:provider.stage}
-    createRoute53Record: true
+  # customDomain:
+  #   domainName: "${opt:stage, 'test'}api.honeydewcare.com"
+  #   basePath: "appointments"
+  #   stage: ${self:provider.stage}
+  #   createRoute53Record: true
+  #   hostedZoneId: Z06303383A59B5RSC2ALD
 
 params:
   default:
     appoinmentCreatedEventDetailType: appointment/created
+    appoinmentCanceledEventDetailType: appointment/canceled
 
 functions:
   - ${file(./sls/api.yml)}
@@ -63,7 +65,7 @@ resources:
 plugins:
   - serverless-prune-plugin
   - serverless-webpack
-  - serverless-domain-manager
+  # - serverless-domain-manager
   - serverless-plugin-lambda-dead-letter
 
 package:

@@ -10,26 +10,31 @@ Resources:
         - AttributeName: "appointmentId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "patientId"
-          KeyType: "HASH"
         - AttributeName: "appointmentId"
-          KeyType: "RANGE"
+          KeyType: "HASH"
+      GlobalSecondaryIndexes:
+        - IndexName: patientIdIndex
+          KeySchema:
+            - AttributeName: patientId
+              KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
       TableName: ${file(./sls/variables.yml):${self:provider.stage}.APPOINTMENTS_TABLE}
 
   # Define the SQS queue
-  AppointmentsDeadLetterQueue:
+  AppointmentCreatedDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: appointments-sqs-dlq
+      QueueName: appointment-created-sqs-dlq
 
-  AppointmentsQueue:
+  AppointmentCreatedQueue:
     Type: AWS::SQS::Queue
     Properties:
       RedrivePolicy:
         maxReceiveCount: 3
-        deadLetterTargetArn: !GetAtt AppointmentsDeadLetterQueue.Arn
+        deadLetterTargetArn: !GetAtt AppointmentCreatedDeadLetterQueue.Arn
 
-  AppointmentsDeadLetterQueuePolicy:
+  AppointmentCreatedDeadLetterQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       PolicyDocument:
@@ -38,12 +43,37 @@ Resources:
             Principal:
               Service: sqs.amazonaws.com
             Action: SQS:SendMessage
-            Resource: !GetAtt AppointmentsQueue.Arn
+            Resource: !GetAtt AppointmentCreatedQueue.Arn
       Queues:
-        - Ref: AppointmentsDeadLetterQueue
+        - Ref: AppointmentCreatedDeadLetterQueue
+
+  AppointmentCanceledDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: appointment-cancelled-sqs-dlq
+
+  AppointmentCanceledQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        maxReceiveCount: 3
+        deadLetterTargetArn: !GetAtt AppointmentCanceledDeadLetterQueue.Arn
+
+  AppointmentCanceledDeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: sqs.amazonaws.com
+            Action: SQS:SendMessage
+            Resource: !GetAtt AppointmentCanceledQueue.Arn
+      Queues:
+        - Ref: AppointmentCanceledDeadLetterQueue
 
   # Define the event rule to filter for events
-  EventRule:
+  AppointmentCreatedEventRule:
     Type: AWS::Events::Rule
     Properties:
       Description: "EventRule"
@@ -53,11 +83,11 @@ Resources:
         detail-type:
           - ${param:appoinmentCreatedEventDetailType}
       Targets:
-        - Arn: !GetAtt AppointmentsQueue.Arn
+        - Arn: !GetAtt AppointmentCreatedQueue.Arn
           Id: "SQSqueue"
 
   # Allow EventBridge to invoke SQS
-  EventBridgeToToSqsPolicy:
+  AppointmentCreatedEventBridgeToToSqsPolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       PolicyDocument:
@@ -66,6 +96,32 @@ Resources:
             Principal:
               Service: events.amazonaws.com
             Action: SQS:SendMessage
-            Resource: !GetAtt AppointmentsQueue.Arn
+            Resource: !GetAtt AppointmentCreatedQueue.Arn
       Queues:
-        - Ref: AppointmentsQueue
+        - Ref: AppointmentCreatedQueue
+
+  AppointmentCanceledEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "EventRule"
+      EventPattern:
+        account:
+          - !Sub "${AWS::AccountId}"
+        detail-type:
+          - ${param:appoinmentCanceledEventDetailType}
+      Targets:
+        - Arn: !GetAtt AppointmentCanceledQueue.Arn
+          Id: "SQSqueue"
+
+  AppointmentCanceledEventBridgeToToSqsPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: SQS:SendMessage
+            Resource: !GetAtt AppointmentCanceledQueue.Arn
+      Queues:
+        - Ref: AppointmentCanceledQueue
